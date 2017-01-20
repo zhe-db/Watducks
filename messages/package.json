@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+	"uwaterloo-api":"1.0.2",
     "botbuilder": "^3.4.2",
     "botbuilder-azure": "0.0.1"
   },
