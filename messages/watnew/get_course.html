@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="{CHARSET}">
+		<title></title>
+		<script type="text/javascript">
+		window.onload=function(){	
+			var uwaterlooApi=require('uwaterloo-api');
+var uwclient = new uwaterlooApi({
+    API_KEY : '743887d93f1df944a7acae0f78741746 '
+});
+uwclient.get('/courses',function (err,res) {
+    if (!err){
+        console.log(sort_courses(res.data));
+    }})
+
+function sort_courses (list){
+    var arr=[];
+    for (var i =0;i<list.length;i++){
+        arr.push(list[i].subject+" "+list[i].catalog_number);
+
+    }
+    return arr;
+}
+		var text=sort_courses();
+		var textFile = null,
+  		makeTextFile = function (text) {
+   	 	
+   	 	
+   	 	
+   	 	var data = new Blob([text], {type: 'text/plain'});
+
+    // If we are replacing a previously generated file we need to
+    // manually revoke the object URL to avoid memory leaks.
+    	if (textFile !== null) {
+    	  window.URL.revokeObjectURL(textFile);
+   	 }
+
+   	 textFile = window.URL.createObjectURL(data);
+
+    // returns a URL you can use as a href
+    return textFile;
+  };}
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
+
