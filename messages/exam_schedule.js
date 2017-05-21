@@ -8,18 +8,18 @@ var uwaterlooApi=require('uwaterloo-api');
 var uwclient = new uwaterlooApi({
     API_KEY : '743887d93f1df944a7acae0f78741746 '
 });
-function exam_schedule (subject,course_number)
-{
+// Module for getting exam schedule
+
+exports.exam_schedule = function exam_schedule (subject, course_number) {
     uwclient.get('/courses/' + subject + "/" + course_number + '/examschedule', function (err, res) {
         if (!err) {
             console.log("Here is " + subject.toUpperCase() + course_number+" final schedule:");
             console.log(res.data.sections[0].start_time + " - "
                 + res.data.sections[0].end_time + " " + res.data.sections[0].day +
                 " " + res.data.sections[1].date + "\n" + res.data.sections[0].location);
-          //  console.log(res.data)
         }
     });
-}
+};
 
-exam_schedule("Japan",'101R')
-console.log("gggg".search(/\d/g));
+// exam_schedule("Japan",'101R');
+// console.log("gggg".search(/\d/g));

@@ -3,26 +3,20 @@ var uwaterlooApi=require('uwaterloo-api');
 var uwclient = new uwaterlooApi({
     API_KEY : '743887d93f1df944a7acae0f78741746 '
 });
+// A testing module testing version 1.0.2 bots connection to LUIS
+
 function direct (instructions){
     var code = encodeURIComponent(instructions);
-
     var options = {
         url : 'https://westus.api.cognitive.microsoft.com/luis' +
         '/v2.0/apps/ae60bd7a-97ad-4dd3-925d-44b2db7fcd17?subscription-key=7a78a990591f446e8c594' +
-        '3fe0cd73a76&q='+code+'&timezoneOffset=0.0&verbose=true',
-        headers: {
-            //   'User-Agent': 'request'
-        }
+        '3fe0cd73a76&q='+code+'&timezoneOffset=0.0&verbose=true'
     };
     function callback(error, response, body) {
         if (!error && response.statusCode == 200) {
             var info = JSON.parse(body);
-            //  console.log(info.topScoringIntent.intent)
-            // console.log(info)
-            decide(info.topScoringIntent.intent,info.entities);
-            //.intents[0].actions[0].parameters[0].value[0].entity
+            decide(info.topScoringIntent.intent, info.entities);
         }
-
     }
     request(options, callback);
 }
@@ -45,8 +39,8 @@ function decide (str, entity){
     }
 }
 function check_course (entity){
-    for (var i=0;i<entity.length;i++){
-        switch  (entity[i].type){
+    for (var i = 0; i < entity.length; i++){
+        switch (entity[i].type){
             case "course_number":
                 var  number = entity[i].entity;
                 //  console.log(number);
@@ -63,7 +57,7 @@ function check_course (entity){
 }
 
 function course_info (course_code,course_number) {
-    (uwclient.get("/courses/"+course_code+"/"+ course_number,function (err,res) {
+    (uwclient.get("/courses/" + course_code + "/" + course_number, function (err,res) {
         //   console.log(res);
         console.log("title: "+res.data.title);
         console.log("description: "+res.data.description);
@@ -75,9 +69,9 @@ function course_info (course_code,course_number) {
 }
 
 //direct("DC 1st floor");
-function vending_machine_ (entity) {
+function vending_machine (entity){
     console.log('gg');
-    for (var i=0;i<entity.length;i++){
+    for (var i = 0; i < entity.length; i++){
         switch  (entity[i].type){
             case "string":
                 var  building = entity[i].entity.toUpperCase();
@@ -94,8 +88,8 @@ function vending_machine_ (entity) {
 }
 function vending (building,floor) {
     // console.log(building,floor);
-    var p1=new Promise( function (resolve,reject) {
-        uwclient.get('/buildings/'+building+'/vendingmachines', function (err, res) {
+    var p1= new Promise(function (resolve, reject){
+        uwclient.get('/buildings/' + building + '/vendingmachines', function (err, res) {
             if (!err) {
                 resolve(res)
             } else {
@@ -103,27 +97,29 @@ function vending (building,floor) {
             }
         })
     });
-
-    p1.then (function (res){
+    p1.then(function (res){
             get_machines(res.data.vending_machines);
         },
         function (err){
             console.log(err);
         }
-    );}
+    );
+}
+// Get current info of a vending machine
+
 function get_machines(res){
     var list=[];
-    for (var i=0;i<res.length;i++){
+    for (var i = 0; i < res.length; i++){
         var str;
-        str = res[i].location +" vending machine products: "+ (res[i].products.join(', '));
+        str = res[i].location + " vending machine products: " + (res[i].products.join(', '));
         list.push(str)
     }
     //console.log('gg');
     console.log(list.join('\n'));
 
 }
-function check_schedule (entity) {
-    for (var i=0;i<entity.length;i++){
+function check_schedule (entity){
+    for (var i = 0; i < entity.length; i++){
         switch  (entity[i].type){
             case "id":
                 var  id = entity[i].entity;
@@ -139,42 +135,44 @@ function check_schedule (entity) {
                 break;
         }}
     //  session.send(convert_time(fn_weekday()));  //new Date().getDay()
-    console.log("I got you "+building.toUpperCase()+id+" schedule after "+fn_hour_minute());
-    get_schedule(building,id,fn_hour_minute(),convert_time(new Date().getDay()));
+    console.log("I got you " + building.toUpperCase() + id + " schedule after " + fn_hour_minute());
+    get_schedule(building, id , fn_hour_minute(), convert_time(new Date().getDay()));
 }
-get_schedule("DC","1350","10:30","T");
-function get_schedule(building,room,time,week){
+//get_schedule("DC", "1350" , "10:30", "T");
 
-    uwclient.get('/buildings/'+building+'/'+room+'/courses',function (err,res) {
+function get_schedule(building, room, time, week){
+    uwclient.get('/buildings/' + building + '/' + room + '/courses',function (err, res) {
         if (!err){
-            check_room(res,time,week)
+            check_room(res, time, week)
         }
     })
 }
 
-function check_room (res,time,week_days){
-    var list =res.data;
+function check_room (res, time, week_days){
+    var list = res.data;
     if (!list){
         console.log("Wrong room number");
     }
     else {
-        var arr=[];
-        for (var i=0;i<list.length-1;i++){
-            if (list[i].start_time>time||list[i].end_time>time){
-                if (week_days.toUpperCase()=="T"){
-                    if ((list[i].weekdays.indexOf("T")!= -1 &&
-                        list[i].weekdays.indexOf("Th")==-1)||(list[i].weekdays.indexOf("T")!= -1 && list[i].weekdays.indexOf("TTh")!=-1)){
-                        var data=list[i];
-                        arr.push(data.subject +data.catalog_number+" "+data.section+" "+data.start_time+"-"+data.end_time)
+        var arr = [];
+        for (var i = 0; i < list.length - 1; i++){
+            if (list[i].start_time > time || list[i].end_time > time){
+                if (week_days.toUpperCase() == "T"){
+                    if ((list[i].weekdays.indexOf("T") != -1 &&
+                        list[i].weekdays.indexOf("Th") == -1) ||
+                        (list[i].weekdays.indexOf("T") != -1 &&
+                        list[i].weekdays.indexOf("TTh") != -1)){
+                        var data = list[i];
+                        arr.push(data.subject + data.catalog_number + " " + data.section + " " + data.start_time + "-" + data.end_time)
                     }
                 }
                 else{
-                    if(list[i].weekdays.indexOf(week_days)!= -1)
-                    {    var data=list[i];
-                        arr.push(data.subject +data.catalog_number+" "+data.section+" "+data.start_time+"-"+data.end_time)
+                    if(list[i].weekdays.indexOf(week_days) != -1)
+                    {    var data = list[i];
+                        arr.push(data.subject + data.catalog_number + " " + data.section + " " + data.start_time + "-" + data.end_time)
                     }}}
         }
-        console.log( quicksort(arr).join('<br>'));
+        console.log(quicksort(arr).join('<br>'));
     }
 }
 
@@ -202,28 +200,27 @@ function convert_time (weekday){
             console.log('Weekends no lectures!');
             break;
     }
-
 }
 
-function swap (list,first,second){
+function swap (list, first, second){
     var temp = list[first];
-    list[first]=list[second];
+    list[first] = list[second];
     list[second] = temp;
 }
 
-function partition  (list,left,right){
-    var pivot = list[Math.floor((right+left)/2)];
-    var i =left;
+function partition  (list, left, right){
+    var pivot = list [Math.floor((right + left) / 2)];
+    var i = left;
     var j = right;
-    while(i<j){
+    while(i < j){
         while(get_index(list[i]) < get_index(pivot)){
-            i++
+            i++;
         }
-        while(get_index(list[j])>get_index(pivot)){
+        while(get_index(list[j]) > get_index(pivot)){
             j--;
         }
-        if (i<=j){
-            swap(list,i,j);
+        if (i <= j){
+            swap(list, i, j);
             i++;
             j--;
         }
@@ -233,25 +230,28 @@ function partition  (list,left,right){
 
 function get_index(item){
     var re_1= /(\d+:)/g;
-    var res= item.match(re_1)[0].slice(0,2);
+    var res= item.match(re_1)[0].slice(0, 2);
     return res;
 }
 
-function quicksort(list,left,right){
+function quicksort(list, left, right){
     var index;
-    if (list.length> 1){
-        left = typeof left!="number"? 0 : left;
-        right = typeof right!="number"? list.length-1 : right;
-        index = partition(list,left,right);
-        if (left<index - 1){
-            quicksort(list,left,index-1);
+    if (list.length > 1){
+        left = typeof left != "number"? 0 : left;
+        right = typeof right != "number"? list.length-1 : right;
+        index = partition(list, left, right);
+        if (left < index - 1){
+            quicksort(list, left, index-1);
         }
-        if (index<right){
-            quicksort(list,index,right);
-        }}
-    return list;}
+        if (index < right){
+            quicksort(list, index, right);
+        }
+    }
+    return list;
+}
 
 /**
- * Created by WangZheZen on 2/4/2017.
+ * Created by WangZhe on 2/4/2017.
  */
-direct("DC 1350 schedule");
+// Test:
+// direct("DC 1350 schedule");

@@ -1,3 +1,4 @@
+// Module for MockResponse
 var MockResponse = (function () {
     function MockResponse(context) {
         this.context = context;
